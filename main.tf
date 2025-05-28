@@ -8,6 +8,10 @@ resource "aws_s3_bucket" "upload_bucket" {
   tags = {
     Name = "LambdaUploadTriggerBucket"
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_iam_role" "lambda_exec_role" {
@@ -16,8 +20,8 @@ resource "aws_iam_role" "lambda_exec_role" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
-      Action    = "sts:AssumeRole",
-      Effect    = "Allow",
+      Action = "sts:AssumeRole",
+      Effect = "Allow",
       Principal = {
         Service = "lambda.amazonaws.com"
       }
@@ -73,10 +77,10 @@ resource "aws_apigatewayv2_api" "http_api" {
 }
 
 resource "aws_apigatewayv2_integration" "lambda_integration" {
-  api_id             = aws_apigatewayv2_api.http_api.id
-  integration_type   = "AWS_PROXY"
-  integration_uri    = aws_lambda_function.file_processor.invoke_arn
-  integration_method = "POST"
+  api_id                 = aws_apigatewayv2_api.http_api.id
+  integration_type       = "AWS_PROXY"
+  integration_uri        = aws_lambda_function.file_processor.invoke_arn
+  integration_method     = "POST"
   payload_format_version = "2.0"
 }
 
@@ -84,12 +88,10 @@ resource "aws_apigatewayv2_route" "lambda_post_route" {
   api_id    = aws_apigatewayv2_api.http_api.id
   route_key = "POST /upload"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
-}
 
-resource "aws_apigatewayv2_route" "lambda_get_route" {
-  api_id    = aws_apigatewayv2_api.http_api.id
-  route_key = "GET /upload"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
+  lifecycle {
+    ignore_changes = [route_key]
+  }
 }
 
 resource "aws_apigatewayv2_stage" "default_stage" {
