@@ -9,9 +9,7 @@ resource "aws_s3_bucket" "upload_bucket" {
     Name = "LambdaUploadTriggerBucket"
   }
 
-  lifecycle {
-    prevent_destroy = true
-  }
+
 }
 
 resource "aws_iam_role" "lambda_exec_role" {
