@@ -4,7 +4,7 @@ pipeline {
     environment {
         FUNCTION_NAME = 's3-file-processor'
         ZIP_FILE = 'lambda_function.zip'
-        HANDLER_PATH = 'lambda_function/lambda_function.py'
+        HANDLER_PATH = 'lambda_function\\lambda_function.py'
         AWS_REGION = 'us-east-2'
     }
 
@@ -12,26 +12,26 @@ pipeline {
         stage('Prepare Workspace') {
             steps {
                 echo "Cleaning previous zip"
-                bat 'del /f /q lambda_function.zip'
+                bat 'if exist lambda_function.zip del /f /q lambda_function.zip'
             }
         }
 
         stage('Zip Lambda Function') {
             steps {
                 echo "Zipping lambda_function.py"
-                bat 'powershell -Command "Compress-Archive -Path ${env.HANDLER_PATH} -DestinationPath ${env.ZIP_FILE} -Force"'
+                bat 'powershell -Command "Compress-Archive -Path lambda_function\\lambda_function.py -DestinationPath lambda_function.zip -Force"'
             }
         }
 
         stage('Deploy to AWS Lambda') {
             steps {
-                echo "Deploying Lambda to AWS"
-                bat """
+                echo "Deploying to Lambda"
+                bat '''
                 aws lambda update-function-code ^
-                    --function-name ${env.FUNCTION_NAME} ^
-                    --zip-file fileb://${env.ZIP_FILE} ^
-                    --region ${env.AWS_REGION}
-                """
+                    --function-name s3-file-processor ^
+                    --zip-file fileb://lambda_function.zip ^
+                    --region us-east-2
+                '''
             }
         }
     }
