@@ -12,25 +12,25 @@ pipeline {
         stage('Prepare Workspace') {
             steps {
                 echo "Cleaning and preparing workspace"
-                sh 'rm -f ${ZIP_FILE}'
+                bat 'del /f /q lambda_function.zip'
             }
         }
 
         stage('Zip Lambda Function') {
             steps {
-                echo "Zipping ${HANDLER_FILE} to ${ZIP_FILE}"
-                sh 'zip -j ${ZIP_FILE} ${HANDLER_FILE}'
+                echo "Zipping lambda_function.py"
+                bat 'powershell -Command "Compress-Archive -Path lambda_function.py -DestinationPath lambda_function.zip -Force"'
             }
         }
 
         stage('Deploy to AWS Lambda') {
             steps {
-                echo "Updating AWS Lambda..."
-                sh '''
-                aws lambda update-function-code \
-                    --function-name ${FUNCTION_NAME} \
-                    --zip-file fileb://${ZIP_FILE} \
-                    --region ${AWS_REGION}
+                echo "Deploying to Lambda"
+                bat '''
+                aws lambda update-function-code ^
+                    --function-name %FUNCTION_NAME% ^
+                    --zip-file fileb://lambda_function.zip ^
+                    --region %AWS_REGION%
                 '''
             }
         }
