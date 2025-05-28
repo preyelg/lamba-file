@@ -5,7 +5,7 @@ pipeline {
         FUNCTION_NAME = 's3-file-processor'
         ZIP_FILE = 'lambda_function.zip'
         HANDLER_FILE = 'lambda_function.py'
-        AWS_REGION = 'us-east-1'
+        AWS_REGION = 'us-east-2'
     }
 
     stages {
