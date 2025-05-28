@@ -3,7 +3,7 @@ import json
 def lambda_handler(event, context):
     print("Event received:", json.dumps(event))
 
-    # Handle API Gateway HTTP POST
+    # Check if it's from API Gateway HTTP
     if "body" in event:
         try:
             data = json.loads(event["body"])
@@ -16,22 +16,24 @@ def lambda_handler(event, context):
                 })
             }
         except Exception as e:
-            print("Error parsing body:", str(e))
             return {
                 "statusCode": 400,
-                "body": json.dumps({ "error": "Invalid JSON", "details": str(e) })
+                "body": json.dumps({
+                    "error": "Invalid JSON",
+                    "details": str(e)
+                })
             }
 
-    # Handle S3 Trigger
+    # Handle S3 event (already working)
     elif "Records" in event and event["Records"][0].get("eventSource") == "aws:s3":
-        print("S3 Event received:", json.dumps(event))
+        print("S3 Event Triggered:", json.dumps(event))
         return {
             "statusCode": 200,
-            "body": "S3 event successfully handled"
+            "body": "S3 event processed."
         }
 
-    # Fallback: Unknown event
+    # Unknown trigger
     return {
         "statusCode": 400,
-        "body": "Unsupported event format"
+        "body": "Unsupported event structure"
     }
