@@ -34,6 +34,30 @@ resource "aws_iam_policy_attachment" "lambda_basic_exec" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+# ✅ S3 ListBucket Permission
+resource "aws_iam_policy" "lambda_s3_list_policy" {
+  name = "lambda-s3-list-policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "s3:ListBucket"
+        ],
+        Resource = "arn:aws:s3:::preye-lambda-upload-66ff1e89"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy_attachment" "lambda_s3_list_attach" {
+  name       = "lambda-s3-list-attach"
+  roles      = [aws_iam_role.lambda_exec_role.name]
+  policy_arn = aws_iam_policy.lambda_s3_list_policy.arn
+}
+
 resource "aws_lambda_function" "file_processor" {
   function_name = "file_processor"
   runtime       = "python3.10"
@@ -76,10 +100,10 @@ resource "aws_apigatewayv2_api" "http_api" {
 }
 
 resource "aws_apigatewayv2_integration" "lambda_integration" {
-  api_id                 = aws_apigatewayv2_api.http_api.id
-  integration_type       = "AWS_PROXY"
-  integration_uri        = aws_lambda_function.file_processor.invoke_arn
-  integration_method     = "POST"
+  api_id             = aws_apigatewayv2_api.http_api.id
+  integration_type   = "AWS_PROXY"
+  integration_uri    = aws_lambda_function.file_processor.invoke_arn
+  integration_method = "POST"
   payload_format_version = "2.0"
 }
 
