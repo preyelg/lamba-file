@@ -85,7 +85,7 @@ resource "aws_apigatewayv2_integration" "lambda_integration" {
 
 resource "aws_apigatewayv2_route" "lambda_post_route" {
   api_id    = aws_apigatewayv2_api.http_api.id
-  route_key = "POST /process"
+  route_key = "POST /"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
 
   lifecycle {
