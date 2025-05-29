@@ -1,4 +1,5 @@
 variable "s3_bucket_name" {
-  description = "preye-project-3-1"
+  description = "Globally unique base name for S3 bucket"
   type        = string
+  default     = "preye-lambda-upload"
 }

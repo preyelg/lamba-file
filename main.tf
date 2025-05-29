@@ -2,14 +2,15 @@ provider "aws" {
   region = "us-east-2"
 }
 
-resource "aws_s3_bucket" "upload_bucket" {
-  bucket = var.s3_bucket_name
+resource "random_id" "bucket_id" {
+  byte_length = 4
+}
 
+resource "aws_s3_bucket" "upload_bucket" {
+  bucket = "${var.s3_bucket_name}-${random_id.bucket_id.hex}"
   tags = {
     Name = "LambdaUploadTriggerBucket"
   }
-
-
 }
 
 resource "aws_iam_role" "lambda_exec_role" {
@@ -34,10 +35,10 @@ resource "aws_iam_policy_attachment" "lambda_basic_exec" {
 }
 
 resource "aws_lambda_function" "file_processor" {
-  function_name = "s3-file-processor"
-  handler       = "lambda_function.lambda_handler"
-  runtime       = "python3.9"
+  function_name = "file_processor"
+  runtime       = "python3.10"
   role          = aws_iam_role.lambda_exec_role.arn
+  handler       = "lambda_function.lambda_handler"
   filename      = "${path.module}/lambda_function.zip"
   source_code_hash = filebase64sha256("${path.module}/lambda_function.zip")
 }
@@ -70,7 +71,7 @@ resource "aws_lambda_permission" "allow_apigw" {
 }
 
 resource "aws_apigatewayv2_api" "http_api" {
-  name          = "lambda-http-api"
+  name          = "file_processor_api"
   protocol_type = "HTTP"
 }
 
@@ -84,7 +85,7 @@ resource "aws_apigatewayv2_integration" "lambda_integration" {
 
 resource "aws_apigatewayv2_route" "lambda_post_route" {
   api_id    = aws_apigatewayv2_api.http_api.id
-  route_key = "POST /upload"
+  route_key = "POST /process"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
 
   lifecycle {
