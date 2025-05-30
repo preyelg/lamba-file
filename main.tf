@@ -46,7 +46,7 @@ resource "aws_iam_policy" "lambda_s3_list_policy" {
         Action = [
           "s3:ListBucket"
         ],
-        Resource = "arn:aws:s3:::preye-lambda-upload-daa1df51"
+        Resource = "arn:aws:s3:::preye-lambda-upload-ccdeee44"
       }
     ]
   })
