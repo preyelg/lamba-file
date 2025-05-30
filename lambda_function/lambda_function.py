@@ -13,17 +13,23 @@ def lambda_handler(event, context):
 
         return {
             "statusCode": 200,
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Content-Type": "application/json"
+            },
             "body": json.dumps({
                 "message": "List of files",
                 "files": items
-            }),
-            "headers": {
-                "Content-Type": "application/json"
-            }
+            })
         }
+
     except Exception as e:
         print("Error listing files:", str(e))
         return {
             "statusCode": 500,
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Content-Type": "application/json"
+            },
             "body": json.dumps({ "error": str(e) })
         }
