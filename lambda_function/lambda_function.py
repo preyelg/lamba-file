@@ -2,7 +2,7 @@ import json
 import boto3
 
 s3 = boto3.client('s3')
-BUCKET = "preye-lambda-upload-66ff1e89"
+BUCKET = "preye-lambda-upload-daa1df51"
 
 def lambda_handler(event, context):
     print("API Event received:", json.dumps(event))
